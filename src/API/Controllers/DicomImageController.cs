@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeraLinkaCareApi.Application.DTOs;
+using TeraLinkaCareApi.Common.Utils;
 using TeraLinkaCareApi.Core.Domain.Entities;
 using TeraLinkaCareApi.Core.Domain.Interfaces;
 using TeraLinkaCareApi.Infrastructure.Persistence;
@@ -20,16 +21,22 @@ public class DicomImageController : ControllerBase
     private readonly ILogger<DicomImageController> _logger;
     private readonly IRepository<DicomImage, CRSDbContext> _repository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly string? _imageMarkerDirPath;
 
     public DicomImageController(
         ILogger<DicomImageController> logger,
         IRepository<DicomImage, CRSDbContext> repository,
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        IConfiguration configuration
     )
     {
         _logger = logger;
         _repository = repository;
         _unitOfWork = unitOfWork;
+        _imageMarkerDirPath = configuration.GetSection("ImageMarkerDirPath").Value;
+
+        if (!Directory.Exists(_imageMarkerDirPath))
+            Directory.CreateDirectory(_imageMarkerDirPath);
     }
 
     /// <summary>
@@ -40,7 +47,8 @@ public class DicomImageController : ControllerBase
     /// <returns>更新後的 DICOM 影像資訊</returns>
     [HttpPost("sopInstanceUid/{sopInstanceUid}/imageMarker")]
     public async Task<ActionResult<string>> PostImageMarker(
-        [Required(ErrorMessage = "SOP Instance UID 為必填項")] string sopInstanceUid,
+        [Required(ErrorMessage = "SOP Instance UID 為必填項")]
+        string sopInstanceUid,
         [FromBody] ImageMarkerDto imageMarker
     )
     {
@@ -56,10 +64,12 @@ public class DicomImageController : ControllerBase
             var dicomImage = new DicomImage
             {
                 SOPInstanceUID = sopInstanceUid,
-                ImageMarker = imageMarker.ImageMarker
+                ImageMarker = imageMarker.ImageMarker,
+                ImageMarkerUrl = ImageUtils.ConvertBase64PngToJpg(imageMarker.ImageMarkerUrl,
+                    Path.Combine(_imageMarkerDirPath, sopInstanceUid)),
             };
 
-            await _repository.UpdatePartialAsync(dicomImage, "SOPInstanceUID", "ImageMarker");
+            await _repository.UpdatePartialAsync(dicomImage, "SOPInstanceUID", "ImageMarker", "ImageMarkerUrl");
             await _unitOfWork.SaveAsync();
 
             return Ok("更新成功");
@@ -83,7 +93,8 @@ public class DicomImageController : ControllerBase
     /// <returns>更新後的 DICOM 影像資訊</returns>
     [HttpPost("sopInstanceUid/{sopInstanceUid}/imageComment")]
     public async Task<ActionResult<string>> PostImageComment(
-        [Required(ErrorMessage = "SOP Instance UID 為必填項")] string sopInstanceUid,
+        [Required(ErrorMessage = "SOP Instance UID 為必填項")]
+        string sopInstanceUid,
         [FromBody] ImageCommentDto imageComment
     )
     {

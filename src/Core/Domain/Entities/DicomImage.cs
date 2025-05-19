@@ -47,4 +47,6 @@ public partial class DicomImage
     public string? ImageMarker { get; set; }
 
     public string? ImageComment { get; set; }
+
+    public string? ImageMarkerUrl { get; set; }
 }

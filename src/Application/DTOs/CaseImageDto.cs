@@ -1,4 +1,5 @@
 ﻿namespace TeraLinkaCareApi.Application.DTOs;
+
 public class CaseImageDto
 {
     public string CaseId { get; set; }
@@ -8,6 +9,8 @@ public class CaseImageDto
     public string ImageDate { get; set; }
     public string ImageTime { get; set; }
     public string FilePath { get; set; }
+    public string ImageUrl { get; set; }
+    public string imageMarkerUrl { get; set; }
     public string ImageMarker { get; set; }
     public string ImageComment { get; set; }
     public DateTime? ShiftDate { get; set; }
