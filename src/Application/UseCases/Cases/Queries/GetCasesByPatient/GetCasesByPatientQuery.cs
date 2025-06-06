@@ -32,22 +32,18 @@ public class GetCasesByPatientQueryHandler
             var query =
                 from caseItem in _context.PtCases
                 join caseType in _context.CfgCaseTypes on caseItem.CaseTypePuid equals caseType.Puid
-                join bodyLocation in _context.CfgBodyLocations
-                    on caseItem.CaseLocation equals bodyLocation.NISLocationLabel
-                // join caseMap in _context.DicomSeriesMaps on caseItem.Puid equals caseMap.PtCasePuid
-                // join dcmSeries in _context.DicomSeries
-                //     on caseMap.DicomSeriesUid equals dcmSeries.SeriesInstanceUID
+                join bodyLocation in _context.CfgBodyLocations on caseItem.CaseLocation equals bodyLocation
+                    .NISLocationLabel into bodyLocationGroup
+                from bodyLocation in bodyLocationGroup.DefaultIfEmpty()
                 where
                     caseItem.LIfeTimeNumber == request.PatientId
                     && caseItem.EncounterNumber == request.EncounterId
                 select new
                 {
                     Case = caseItem,
-                    LocationLabel = bodyLocation.NISLocationLabel,
-                    LocationSVGId = bodyLocation.SVGGraphicId,
+                    LocationLabel = caseItem.CaseLocation,
+                    LocationSVGId = bodyLocation != null ? bodyLocation.SVGGraphicId : null,
                     CasetypeShortLabel = caseType.CaseTypeShortLabel,
-                    // SeriesInsUid = caseMap.DicomSeriesUid,
-                    // StudyInsUid = dcmSeries.StudyInstanceUID
                 };
 
             var results = await query.ToListAsync();
@@ -56,14 +52,14 @@ public class GetCasesByPatientQueryHandler
             {
                 var dto = _mapper.Map<CaseDto>(r.Case);
                 dto.LocationLabel = r.LocationLabel;
-                dto.LocationSVGId = r.LocationSVGId;
+                dto.LocationSVGId = r.LocationSVGId ?? "Unknown";
                 dto.CaseTypeShortLabel = r.CasetypeShortLabel;
                 dto.IsCaseClosed = r.Case.CaseCloseTime.HasValue;
                 return dto;
             });
 
             var groupedCases = caseDtos
-                .GroupBy(c => c.LocationSVGId ?? "Unknown")
+                .GroupBy(c => c.LocationLabel ?? "Unknown")
                 .ToDictionary(g => g.Key, g => g.ToList());
 
             return Result<Dictionary<string, List<CaseDto>>>.Success(groupedCases);
