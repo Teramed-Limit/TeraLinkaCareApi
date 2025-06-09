@@ -125,6 +125,15 @@ builder.Services.AddCors(options =>
             policy.WithOrigins(allowedOrigins).AllowAnyMethod().AllowAnyHeader().AllowCredentials();
         }
     );
+    
+    // 新增允許所有來源的政策
+    options.AddPolicy(
+        "AllowEverything",
+        builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+    );
 });
 
 // 配置多個 DbContext
@@ -182,7 +191,7 @@ app.UseSpaStaticFiles();
 app.UseRouting();
 
 // 添加認證中間件
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 // 使用 CORS
 app.UseCors("AllowAll");
