@@ -9,4 +9,5 @@ public class ShiftTimeResult
     public ShiftWithTime? CurrentShift { get; set; }
     public string? ClinicalDate { get; set; }
     public string? NaturalDate { get; set; }
+    public DateTime? OriginalDate { get; set; }
 }

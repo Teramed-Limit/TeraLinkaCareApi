@@ -53,6 +53,7 @@ public class ClinicalUnitShiftController : BaseApiController<SysClinicalUnitShif
     }
 
     // 根據時間範圍獲取輪班資訊
+    [AllowAnonymous]
     [HttpGet("TestShiftsByTime/{clinicalUnitPuid}")]
     public async Task<ActionResult> TestShiftsByTime(Guid clinicalUnitPuid)
     {
@@ -78,12 +79,13 @@ public class ClinicalUnitShiftController : BaseApiController<SysClinicalUnitShif
 
         var testTimes = new List<DateTime>
         {
-            new DateTime(2025, 2, 17, 15, 0, 0),
-            new DateTime(2025, 2, 17, 15, 1, 0),
-            new DateTime(2025, 2, 17, 7, 0, 0),
-            new DateTime(2025, 2, 17, 7, 1, 0),
-            new DateTime(2025, 2, 17, 23, 0, 0),
-            new DateTime(2025, 2, 17, 23, 1, 0)
+            // new DateTime(2025, 6, 11, 16, 0, 0),
+            // new DateTime(2025, 6, 11, 16, 1, 0),
+            // new DateTime(2025, 6, 11, 8, 0, 0),
+            // new DateTime(2025, 6, 11, 8, 1, 0),
+            // new DateTime(2025, 6, 11, 0, 0, 0),
+            // new DateTime(2025, 6, 11, 0, 1, 0),
+            new DateTime(2025, 6, 11, 7, 0, 0)
         };
 
         var shiftTimeResults = new List<ShiftTimeResult>();
@@ -113,6 +115,7 @@ public class ClinicalUnitShiftController : BaseApiController<SysClinicalUnitShif
                 {
                     observationShiftDate = DateTime.Parse(shiftTimeResult.ClinicalDate);
                 }
+
                 shiftTimeResults.Add(shiftTimeResult);
             }
             else
