@@ -116,6 +116,8 @@ public partial class CRSDbContext : DbContext
 
     public virtual DbSet<SearchSeriesAndGroupImageCountView> SearchSeriesAndGroupImageCountViews { get; set; }
 
+    public virtual DbSet<SearchStudyOfCaseStatusView> SearchStudyOfCaseStatusViews { get; set; }
+
     public virtual DbSet<SearchVideoFullPathView> SearchVideoFullPathViews { get; set; }
 
     public virtual DbSet<SearchVideoFullProfileView> SearchVideoFullProfileViews { get; set; }
@@ -140,14 +142,14 @@ public partial class CRSDbContext : DbContext
 
     public virtual DbSet<VideoBroadcasting> VideoBroadcastings { get; set; }
 
-    public virtual DbSet<vwPatientBedLocationCurrent> vwPatientBedLocationCurrents { get; set; }
-
-//     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-// #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//         => optionsBuilder.UseSqlServer("Server=DESKTOP-DSL3QH8\\MSSQLSERVER01;Database=CRS;Trusted_Connection=True;TrustServerCertificate=True;");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-DSL3QH8\\MSSQLSERVER01;Database=CRS;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
+
         modelBuilder.Entity<A_PtEncounter>(entity =>
         {
             entity.HasKey(e => e.Puid);
@@ -155,23 +157,62 @@ public partial class CRSDbContext : DbContext
             entity.ToTable("A_PtEncounter");
 
             entity.Property(e => e.Puid).ValueGeneratedNever();
+            entity.Property(e => e.ABPd).HasColumnType("decimal(28, 14)");
+            entity.Property(e => e.ABPm).HasColumnType("decimal(28, 14)");
+            entity.Property(e => e.ABPs).HasColumnType("decimal(28, 14)");
+            entity.Property(e => e.APACHEII).HasColumnType("decimal(28, 14)");
             entity.Property(e => e.AttendingPhysician).HasMaxLength(64);
+            entity.Property(e => e.AttendingPhysicianDomainName).HasMaxLength(64);
+            entity.Property(e => e.BT).HasColumnType("decimal(28, 14)");
             entity.Property(e => e.BedLabel).HasMaxLength(32);
+            entity.Property(e => e.BodyHeight).HasColumnType("decimal(28, 14)");
+            entity.Property(e => e.BodyWeight).HasColumnType("decimal(28, 14)");
+            entity.Property(e => e.CI).HasMaxLength(32);
+            entity.Property(e => e.CONTENT).HasMaxLength(1000);
+            entity.Property(e => e.CRITICAL).HasMaxLength(128);
+            entity.Property(e => e.Cardiovascular).HasMaxLength(128);
+            entity.Property(e => e.CareProviderName).HasMaxLength(32);
             entity.Property(e => e.ClinicalService).HasMaxLength(50);
             entity.Property(e => e.ClinicalUnitLabel).HasMaxLength(32);
             entity.Property(e => e.DateOfBirth).HasColumnType("datetime");
+            entity.Property(e => e.DedicatedPhysician).HasMaxLength(64);
+            entity.Property(e => e.Diagnosis).HasMaxLength(1000);
             entity.Property(e => e.EncounterNumber).HasMaxLength(50);
             entity.Property(e => e.FirstName).HasMaxLength(50);
+            entity.Property(e => e.GCS).HasColumnType("decimal(28, 14)");
+            entity.Property(e => e.GI).HasMaxLength(128);
             entity.Property(e => e.Gender).HasMaxLength(50);
+            entity.Property(e => e.HR).HasColumnType("decimal(28, 14)");
+            entity.Property(e => e.Hemotology).HasMaxLength(128);
+            entity.Property(e => e.LOOKDT).HasColumnType("datetime");
+            entity.Property(e => e.LOS).HasColumnType("decimal(28, 14)");
+            entity.Property(e => e.LOS_ER).HasMaxLength(32);
+            entity.Property(e => e.LabNotification).HasMaxLength(128);
             entity.Property(e => e.LastName).HasMaxLength(50);
             entity.Property(e => e.LifeTimeNumber).HasMaxLength(50);
+            entity.Property(e => e.MAJOR).HasMaxLength(32);
+            entity.Property(e => e.Metabolic).HasMaxLength(128);
+            entity.Property(e => e.NBPd).HasColumnType("decimal(28, 14)");
+            entity.Property(e => e.NBPm).HasColumnType("decimal(28, 14)");
+            entity.Property(e => e.NBPs).HasColumnType("decimal(28, 14)");
             entity.Property(e => e.NationalId).HasMaxLength(50);
+            entity.Property(e => e.OrderNotification).HasMaxLength(128);
+            entity.Property(e => e.OtherNotification).HasMaxLength(1000);
+            entity.Property(e => e.PtIdInfo).HasMaxLength(64);
+            entity.Property(e => e.RR).HasColumnType("decimal(28, 14)");
+            entity.Property(e => e.Renal).HasMaxLength(128);
+            entity.Property(e => e.Respiratory).HasMaxLength(128);
+            entity.Property(e => e.ServicePhysician).HasMaxLength(64);
+            entity.Property(e => e.SpO2).HasColumnType("decimal(28, 14)");
             entity.Property(e => e.SysInTime).HasColumnType("datetime");
             entity.Property(e => e.SysOutTime).HasColumnType("datetime");
+            entity.Property(e => e.TTAS).HasMaxLength(32);
             entity.Property(e => e.TransferInTime).HasColumnType("datetime");
             entity.Property(e => e.TransferOutStatus).HasMaxLength(32);
             entity.Property(e => e.TransferOutTime).HasColumnType("datetime");
             entity.Property(e => e.UpdateTime).HasColumnType("datetime");
+            entity.Property(e => e.VentilatorMode).HasMaxLength(50);
+            entity.Property(e => e.WHEREABOUTS).HasMaxLength(32);
         });
 
         modelBuilder.Entity<BasicWorklistMgtService>(entity =>
@@ -510,6 +551,7 @@ public partial class CRSDbContext : DbContext
             entity.Property(e => e.ImageDate)
                 .HasMaxLength(10)
                 .IsFixedLength();
+            entity.Property(e => e.ImageMarkerUrl).HasMaxLength(256);
             entity.Property(e => e.ImageNumber)
                 .HasMaxLength(10)
                 .IsFixedLength();
@@ -535,7 +577,6 @@ public partial class CRSDbContext : DbContext
                 .HasMaxLength(24)
                 .IsFixedLength();
             entity.Property(e => e.UnmappedDcmTags).HasMaxLength(1024);
-            entity.Property(e => e.ImageMarkerUrl).HasMaxLength(256);
         });
 
         modelBuilder.Entity<DicomNode>(entity =>
@@ -1573,6 +1614,43 @@ public partial class CRSDbContext : DbContext
                 .IsFixedLength();
         });
 
+        modelBuilder.Entity<SearchStudyOfCaseStatusView>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("SearchStudyOfCaseStatusView");
+
+            entity.Property(e => e.AccessionNumber).HasMaxLength(50);
+            entity.Property(e => e.AllCaseStatuses).HasMaxLength(4000);
+            entity.Property(e => e.Modality)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.NameofPhysiciansReading).HasMaxLength(64);
+            entity.Property(e => e.OtherPatientId).HasMaxLength(50);
+            entity.Property(e => e.OtherPatientNames).HasMaxLength(64);
+            entity.Property(e => e.PatientId)
+                .HasMaxLength(32)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.PatientsBirthDate).HasMaxLength(50);
+            entity.Property(e => e.PatientsName)
+                .HasMaxLength(64)
+                .IsFixedLength();
+            entity.Property(e => e.PatientsSex).HasMaxLength(50);
+            entity.Property(e => e.PerformingPhysiciansName).HasMaxLength(64);
+            entity.Property(e => e.ReferringPhysiciansName).HasMaxLength(64);
+            entity.Property(e => e.StudyDate)
+                .HasMaxLength(10)
+                .IsFixedLength();
+            entity.Property(e => e.StudyDescription).HasMaxLength(128);
+            entity.Property(e => e.StudyInstanceUID)
+                .HasMaxLength(256)
+                .IsFixedLength();
+            entity.Property(e => e.StudyTime)
+                .HasMaxLength(32)
+                .IsFixedLength();
+        });
+
         modelBuilder.Entity<SearchVideoFullPathView>(entity =>
         {
             entity
@@ -1763,6 +1841,7 @@ public partial class CRSDbContext : DbContext
             entity.Property(e => e.BedLabelHIS).HasMaxLength(32);
             entity.Property(e => e.BedType).HasMaxLength(32);
             entity.Property(e => e.RoomLabel).HasMaxLength(32);
+            entity.Property(e => e.ZoneLabel).HasMaxLength(32);
         });
 
         modelBuilder.Entity<SysClinicalUnit>(entity =>
@@ -1899,28 +1978,6 @@ public partial class CRSDbContext : DbContext
             entity.Property(e => e.UserID)
                 .HasMaxLength(20)
                 .IsFixedLength();
-        });
-
-        modelBuilder.Entity<vwPatientBedLocationCurrent>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("vwPatientBedLocationCurrent");
-
-            entity.Property(e => e.BedLabel).HasMaxLength(32);
-            entity.Property(e => e.DateOfBirth).HasColumnType("datetime");
-            entity.Property(e => e.EncounterNumber).HasMaxLength(32);
-            entity.Property(e => e.FirstName).HasMaxLength(50);
-            entity.Property(e => e.Gender).HasMaxLength(50);
-            entity.Property(e => e.LastName).HasMaxLength(50);
-            entity.Property(e => e.LifeTimeNumber).HasMaxLength(50);
-            entity.Property(e => e.NationalId).HasMaxLength(50);
-            entity.Property(e => e.SysInTime).HasColumnType("datetime");
-            entity.Property(e => e.SysOutTime).HasColumnType("datetime");
-            entity.Property(e => e.TransferInTime).HasColumnType("datetime");
-            entity.Property(e => e.TransferOutStatus).HasMaxLength(32);
-            entity.Property(e => e.TransferOutTime).HasColumnType("datetime");
-            entity.Property(e => e.WardLabel).HasMaxLength(32);
         });
 
         OnModelCreatingPartial(modelBuilder);

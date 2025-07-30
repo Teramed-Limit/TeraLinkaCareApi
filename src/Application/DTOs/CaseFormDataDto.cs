@@ -6,5 +6,5 @@ public class CaseFormDataDto
     public required string CaseDateTime { get; set; }
     public Guid FormDefinePuid { get; set; }
     public required Dictionary<string, object> FormData { get; set; }
-    public Guid ClinicalUnitPuid { get; set; }
+    public Guid? ClinicalUnitPuid { get; set; } = Guid.Empty;
 }

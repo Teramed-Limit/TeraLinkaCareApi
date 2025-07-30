@@ -22,4 +22,8 @@ public partial class SysBed
     public int? BedCardPoRowId { get; set; }
 
     public int? Sequence { get; set; }
+
+    public int? IsNoBed { get; set; }
+
+    public string? ZoneLabel { get; set; }
 }

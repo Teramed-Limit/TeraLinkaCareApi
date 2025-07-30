@@ -142,11 +142,20 @@ public class InsertCaseRecordCommandHandler
         DateTime observationDateTime = caseDateTime;
         DateTime? observationShiftDate = null;
 
+
+        // 需將 Nullable<Guid> 轉為 Guid，避免型別不符
+        if (!formDataDto.ClinicalUnitPuid.HasValue || formDataDto.ClinicalUnitPuid.Value == Guid.Empty)
+        {
+            return (observationDateTime, observationShiftDate, null);
+        }
+
+        var clinicalUnitPuid = formDataDto.ClinicalUnitPuid.Value;
+
         // 獲取指定的臨床單位
-        var clinicalUnits = await _unitShiftService.GetUnitByPuid(formDataDto.ClinicalUnitPuid);
+        var clinicalUnits = await _unitShiftService.GetUnitByPuid(clinicalUnitPuid);
 
         // 獲取與該臨床單位相關的班別
-        var shifts = await _unitShiftService.GetUnitShiftsByPuid(formDataDto.ClinicalUnitPuid);
+        var shifts = await _unitShiftService.GetUnitShiftsByPuid(clinicalUnitPuid);
 
         // 計算班別時間資訊，指定臨床單位PUID
         var shiftInfo = _shiftTimeService.DetermineShiftAndTime(
