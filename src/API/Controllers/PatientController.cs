@@ -32,8 +32,8 @@ public class PatientController : ControllerBase
     /// <param name="patientId">病患 ID</param>
     /// <returns>病患資料</returns>
     [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
-    [HttpGet("patientId/{patientId}")]
-    public async Task<ActionResult<A_PtEncounter>> GetByPatientId(string patientId)
+    [HttpGet("patientId/{patientId}/encounterId/{encounterId}")]
+    public async Task<ActionResult<A_PtEncounter>> GetByPatientId(string patientId, string encounterId)
     {
         try
         {
@@ -43,8 +43,11 @@ public class PatientController : ControllerBase
                 return BadRequest("病患 ID 不能為空");
             }
 
-            var patients = await _repository.GetByConditionAsync(x => x.LifeTimeNumber == patientId
-            );
+            var patients =
+                await _repository.GetByConditionAsync(x =>
+                    x.LifeTimeNumber == patientId && 
+                    x.EncounterNumber == encounterId
+                );
 
             if (!patients.Any())
             {
