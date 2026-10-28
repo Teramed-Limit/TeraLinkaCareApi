@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using TeraLinkaCareApi.Core.Domain.Entities;
+using TeraLinkaCareApi.Application.DTOs;
 using TeraLinkaCareApi.Infrastructure.Persistence;
 
 namespace TeraLinkaCareApi.Application.Services;
@@ -13,14 +13,31 @@ public class PatientEncounterService
         _context = context;
     }
 
-    public async Task<List<A_PtEncounter>> GetPatientEncounterList(Guid clinicalUnitId)
+    public async Task<List<PatientEncounterListDto>> GetPatientEncounterList(Guid clinicalUnitId)
     {
         var patientEncounterList =
-            from pe in _context.A_PtEncounters
+            from pe in _context.A_PtEncounters.AsNoTracking()
             join bed in _context.SysBeds on pe.BedLabel equals bed.BedLabel
             where pe.ClinicalUnitPuid == clinicalUnitId
             orderby bed.Sequence
-            select pe;
+            select new PatientEncounterListDto
+            {
+                Puid = pe.Puid,
+                PatientPuid = pe.PatientPuid,
+                PtEncounterPuid = pe.PtEncounterPuid,
+                ClinicalUnitPuid = pe.ClinicalUnitPuid,
+                ClinicalUnitLabel = pe.ClinicalUnitLabel,
+                BedLabel = pe.BedLabel,
+                SysInTime = pe.SysInTime,
+                SysOutTime = pe.SysOutTime,
+                EncounterNumber = pe.EncounterNumber,
+                LifeTimeNumber = pe.LifeTimeNumber,
+                LastName = pe.LastName,
+                FirstName = pe.FirstName,
+                Gender = pe.Gender,
+                DateOfBirth = pe.DateOfBirth,
+                AttendingPhysician = pe.AttendingPhysician,
+            };
 
         return await patientEncounterList.ToListAsync();
     }

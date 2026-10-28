@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TeraLinkaCareApi.Application.DTOs;
 using TeraLinkaCareApi.Application.Services;
 using TeraLinkaCareApi.Core.Domain.Entities;
 using TeraLinkaCareApi.Core.Domain.Interfaces;
@@ -36,7 +37,7 @@ public class PatientEncounterController : ControllerBase
     /// <param name="clinicalUnitId">臨床單位 ID (GUID 格式)</param>
     /// <returns>病患就醫紀錄列表</returns>
     [HttpGet("clinicalUnitId/{clinicalUnitId}")]
-    public async Task<ActionResult<IEnumerable<A_PtEncounter>>> GetByClinicalUnitId(
+    public async Task<ActionResult<IEnumerable<PatientEncounterListDto>>> GetByClinicalUnitId(
         string clinicalUnitId
     )
     {
