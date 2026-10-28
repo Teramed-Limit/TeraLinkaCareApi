@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TeraLinkaCareApi.Core.Domain.Entities;
-using TeraLinkaCareApi.Core.Domain.Interfaces;
-using TeraLinkaCareApi.Infrastructure.Persistence;
+using TeraLinkaCareApi.Application.DTOs;
+using TeraLinkaCareApi.Application.Services;
 
 namespace TeraLinkaCareApi.API.Controllers;
 
@@ -15,15 +14,15 @@ namespace TeraLinkaCareApi.API.Controllers;
 public class PatientController : ControllerBase
 {
     private readonly ILogger<PatientController> _logger;
-    private readonly IRepository<A_PtEncounter, CRSDbContext> _repository;
+    private readonly PatientEncounterService _patientEncounterService;
 
     public PatientController(
         ILogger<PatientController> logger,
-        IRepository<A_PtEncounter, CRSDbContext> repository
+        PatientEncounterService patientEncounterService
     )
     {
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _patientEncounterService = patientEncounterService;
     }
 
     /// <summary>
@@ -33,7 +32,7 @@ public class PatientController : ControllerBase
     /// <returns>病患資料</returns>
     [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
     [HttpGet("patientId/{patientId}/encounterId/{encounterId}")]
-    public async Task<ActionResult<A_PtEncounter>> GetByPatientId(string patientId, string encounterId)
+    public async Task<ActionResult<PatientInfoDto>> GetByPatientId(string patientId, string encounterId)
     {
         try
         {
@@ -43,19 +42,13 @@ public class PatientController : ControllerBase
                 return BadRequest("病患 ID 不能為空");
             }
 
-            var patients =
-                await _repository.GetByConditionAsync(x =>
-                    x.LifeTimeNumber == patientId && 
-                    x.EncounterNumber == encounterId
-                );
+            var patient = await _patientEncounterService.GetPatientInfo(patientId, encounterId);
 
-            if (!patients.Any())
+            if (patient == null)
             {
                 _logger.LogWarning("Patient not found with ID: {PatientId}", patientId);
                 return NotFound($"找不到病患 ID 為 {patientId} 的資料");
             }
-
-            var patient = patients.First();
 
             return Ok(patient);
         }

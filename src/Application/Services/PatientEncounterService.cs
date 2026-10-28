@@ -41,4 +41,38 @@ public class PatientEncounterService
 
         return await patientEncounterList.ToListAsync();
     }
+
+    public async Task<PatientInfoDto?> GetPatientInfo(string patientId, string encounterId)
+    {
+        return await _context
+            .A_PtEncounters.AsNoTracking()
+            .Where(pe => pe.LifeTimeNumber == patientId && pe.EncounterNumber == encounterId)
+            .Select(pe => new PatientInfoDto
+            {
+                Puid = pe.Puid,
+                PatientPuid = pe.PatientPuid,
+                PtEncounterPuid = pe.PtEncounterPuid,
+                ClinicalUnitPuid = pe.ClinicalUnitPuid,
+                ClinicalUnitLabel = pe.ClinicalUnitLabel,
+                BedLabel = pe.BedLabel,
+                LifeTimeNumber = pe.LifeTimeNumber,
+                EncounterNumber = pe.EncounterNumber,
+                LastName = pe.LastName,
+                FirstName = pe.FirstName,
+                Gender = pe.Gender,
+                DateOfBirth = pe.DateOfBirth,
+                NationalId = pe.NationalId,
+                ClinicalService = pe.ClinicalService,
+                AttendingPhysician = pe.AttendingPhysician,
+                SysInTime = pe.SysInTime,
+                SysOutTime = pe.SysOutTime,
+                TransferInTime = pe.TransferInTime,
+                TransferOutTime = pe.TransferOutTime,
+                TransferOutStatus = pe.TransferOutStatus,
+                UpdateTime = pe.UpdateTime,
+                BodyHeight = pe.BodyHeight,
+                BodyWeight = pe.BodyWeight,
+            })
+            .FirstOrDefaultAsync();
+    }
 }
