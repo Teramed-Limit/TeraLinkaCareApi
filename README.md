@@ -1,3 +1,5 @@
+> **此 repo 已封存（2026-10-29）。** 程式碼已連同完整歷史併入 monorepo [Teramed-Limit/TeraLinkaWoundCare](https://github.com/Teramed-Limit/TeraLinkaWoundCare) 的 `TeraLinkaCareApi/` 目錄，請改至該處開發。
+
 # Getting Started with EF
 
 ## 安裝工具
