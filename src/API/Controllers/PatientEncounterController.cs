@@ -32,6 +32,59 @@ public class PatientEncounterController : ControllerBase
     }
 
     /// <summary>
+    /// 依條件搜尋住院病人（病房、病歷號、姓名、住院日期區間）
+    /// </summary>
+    /// <remarks>全部條件未填時列出目前在院病人；最多回傳 500 筆；無結果回傳空陣列。</remarks>
+    /// <param name="request">搜尋條件</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>病患就醫紀錄列表</returns>
+    [HttpGet("search")]
+    public async Task<ActionResult<IEnumerable<PatientEncounterListDto>>> Search(
+        [FromQuery] PatientEncounterSearchRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        try
+        {
+            Guid? clinicalUnitGuid = null;
+            if (!string.IsNullOrWhiteSpace(request.ClinicalUnitId))
+            {
+                if (!Guid.TryParse(request.ClinicalUnitId, out var parsed))
+                {
+                    _logger.LogWarning("無效的臨床單位 ID 格式: {ClinicalUnitId}", request.ClinicalUnitId);
+                    return BadRequest("臨床單位 ID 格式不正確");
+                }
+                clinicalUnitGuid = parsed;
+            }
+
+            if (
+                request.SysInFrom.HasValue
+                && request.SysInTo.HasValue
+                && request.SysInFrom.Value.Date > request.SysInTo.Value.Date
+            )
+            {
+                return BadRequest("住院日期起不可晚於住院日期迄");
+            }
+
+            var encounters = await _patientEncounterService.SearchPatientEncounters(
+                clinicalUnitGuid,
+                request.LifeTimeNumber,
+                request.Name,
+                request.SysInFrom,
+                request.SysInTo,
+                cancellationToken
+            );
+
+            return Ok(encounters);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "搜尋病患就醫紀錄時發生錯誤");
+            return StatusCode(500, "搜尋病患就醫紀錄時發生錯誤");
+        }
+    }
+
+    /// <summary>
     /// 根據臨床單位 ID 取得病患就醫紀錄列表
     /// </summary>
     /// <param name="clinicalUnitId">臨床單位 ID (GUID 格式)</param>

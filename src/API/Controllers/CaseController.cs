@@ -6,6 +6,7 @@ using TeraLinkaCareApi.Application.DTOs;
 using TeraLinkaCareApi.Application.UseCases.Cases.Commands.SetCaseStatus;
 using TeraLinkaCareApi.Application.UseCases.Cases.Queries.GetCaseHistory;
 using TeraLinkaCareApi.Application.UseCases.Cases.Queries.GetCaseImage;
+using TeraLinkaCareApi.Application.UseCases.Cases.Queries.GetCasePreview;
 using TeraLinkaCareApi.Application.UseCases.Cases.Queries.GetCaseRecordDate;
 using TeraLinkaCareApi.Application.UseCases.Cases.Queries.GetCasesByPatient;
 
@@ -67,6 +68,53 @@ public class CaseController : ControllerBase
                 encounterId
             );
             return StatusCode(500, "獲取案例列表時發生錯誤");
+        }
+    }
+
+    /// <summary>
+    /// 取得傷照預覽頁資料（依部位分組，每個案例的 series 最新在前、影像依 ImageNumber 排序）
+    /// </summary>
+    /// <param name="patientId">病人ID</param>
+    /// <param name="encounterId">就醫ID</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>預覽資料</returns>
+    [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
+    [HttpGet("patientId/{patientId}/encounterId/{encounterId}/preview")]
+    public async Task<ActionResult<CasePreviewDto>> GetPreview(
+        string patientId,
+        string encounterId,
+        CancellationToken cancellationToken
+    )
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(patientId) || string.IsNullOrEmpty(encounterId))
+            {
+                return BadRequest("病人ID和就醫ID不能為空");
+            }
+
+            var result = await _mediator.Send(
+                new GetCasePreviewQuery(patientId, encounterId),
+                cancellationToken
+            );
+
+            if (!result.Succeeded)
+            {
+                // 例外細節已由 handler 記錄於 log，回應只給固定訊息
+                return StatusCode(500, "獲取案例預覽失敗");
+            }
+
+            return Ok(result.Data);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "獲取案例預覽時發生錯誤: PatientId={PatientId}, EncounterId={EncounterId}",
+                patientId,
+                encounterId
+            );
+            return StatusCode(500, "獲取案例預覽失敗");
         }
     }
 

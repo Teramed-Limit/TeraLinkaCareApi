@@ -14,6 +14,10 @@ public class AutoMapperProfiles : Profile
                 opt => opt.Ignore() // 忽略這個屬性，因為它來自 join
             );
 
+        CreateMap<PtCase, PreviewCaseDto>()
+            .IncludeBase<PtCase, CaseDto>()
+            .ForMember(dest => dest.Series, opt => opt.Ignore());
+
         CreateMap<object, CaseRecordDto>()
             .ForMember(dest => dest.FormDefine, opt => opt.Ignore())
             .ForMember(dest => dest.FormData, opt => opt.Ignore());

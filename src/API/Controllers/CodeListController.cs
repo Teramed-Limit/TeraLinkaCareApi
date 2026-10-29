@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TeraLinkaCareApi.API.Controllers.Base;
 using TeraLinkaCareApi.Core.Domain.Entities;
 using TeraLinkaCareApi.Core.Repository;
@@ -38,6 +39,7 @@ namespace TeraLinkaCareApi.API.Controllers
             return Ok(item);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
         [HttpGet("all")]
         public async Task<
             ActionResult<Dictionary<string, List<CodeList>>>
