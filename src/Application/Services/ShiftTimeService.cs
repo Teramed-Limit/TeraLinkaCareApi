@@ -87,14 +87,10 @@ namespace TeraLinkaCareApi.Application.Services
                                 shiftStartInMinutes + shift.ShiftDuration.GetValueOrDefault();
 
                             // 建立該班別的開始和結束日期時間
-                            DateTime shiftStartDate = new DateTime(
-                                baseDate.Year,
-                                baseDate.Month,
-                                baseDate.Day,
-                                shift.ShiftBeginHour.GetValueOrDefault(),
-                                shift.ShiftOffsetMinutes.GetValueOrDefault(),
-                                0
-                            );
+                            // ShiftBeginHour 可能為 24（跨日大夜班），不可用 DateTime 建構子
+                            DateTime shiftStartDate = baseDate.Date
+                                .AddHours(shift.ShiftBeginHour.GetValueOrDefault())
+                                .AddMinutes(shift.ShiftOffsetMinutes.GetValueOrDefault());
 
                             DateTime shiftEndDate = shiftStartDate
                                 .AddMinutes(shift.ShiftDuration.GetValueOrDefault())
